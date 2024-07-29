@@ -1,0 +1,9 @@
+__pycache__/
+venv/
+.venv/
+.env/
+.env
+.env.*
+!.env.example
+data/*
+!data/invoices/
