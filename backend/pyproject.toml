@@ -7,7 +7,16 @@ packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pdfminer-six = "^20240706"
+tqdm = "^4.66.4"
+tiktoken = "^0.7.0"
+nltk = "^3.8.1"
+openai = "^1.37.1"
+pydantic-settings = "^2.3.4"
 
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
 
 [build-system]
 requires = ["poetry-core"]
