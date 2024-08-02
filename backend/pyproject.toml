@@ -13,6 +13,8 @@ tiktoken = "^0.7.0"
 nltk = "^3.8.1"
 openai = "^1.37.1"
 pydantic-settings = "^2.3.4"
+redis = "^5.0.8"
+numpy = "^2.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
