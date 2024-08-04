@@ -7,7 +7,7 @@ class QueryKnowledgeBaseTool(BaseModel):
     """
     Query the knowledge base to answer the user questions.
     """
-    query_input: str = Field(description='The natural language query input string. The query input should be clear, standalone and include the necessary details to answer the user question.')
+    query_input: str = Field(description='The natural language query input string. The query input should be clear and standalone.')
 
     @classmethod    
     def openai_tool_schema(self):
