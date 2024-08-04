@@ -15,6 +15,7 @@ openai = "^1.37.1"
 pydantic-settings = "^2.3.4"
 redis = "^5.0.8"
 numpy = "^2.0.1"
+pydantic = "^2.8.2"
 
 
 [tool.poetry.group.dev.dependencies]

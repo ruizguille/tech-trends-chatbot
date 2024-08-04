@@ -5,7 +5,7 @@ import numpy as np
 from pdfminer.high_level import extract_text
 from app.splitter import TextSplitter
 from app.openai import get_embeddings, token_size
-from app.db import add_chunks_to_vector_db
+from app.db import add_to_vector_db
 from app.config import settings
 
 def batchify(iterable, batch_size):
@@ -55,4 +55,4 @@ async def add_docs_to_knowledge_base(docs_dir=settings.DOCS_DIR):
         chunk['vector'] = np.array(vector, dtype=np.float32).tobytes()
     
     print('\nAdding chunks to vector DB')
-    add_chunks_to_vector_db(chunks)
+    add_to_vector_db(chunks)

@@ -30,14 +30,14 @@ def create_vectors_index(idx_name=VECTORS_IDX_NAME, idx_prefix=VECTORS_IDX_PREFI
     except Exception as e:
         print(f'Error creating index {idx_name}: {e}')
 
-def add_chunks_to_vector_db(chunks, idx_prefix=VECTORS_IDX_PREFIX):
+def add_to_vector_db(chunks, idx_prefix=VECTORS_IDX_PREFIX):
     pipe = r.pipeline()
     for chunk in chunks:
         key = idx_prefix + chunk['chunk_id']
         pipe.hset(key, mapping=chunk)
     pipe.execute()
 
-def search_vector_db(query_vector, top_k=10, idx_name=VECTORS_IDX_NAME):
+def search_vector_db(query_vector, top_k=5, idx_name=VECTORS_IDX_NAME):
     query = (
         Query(f'(*)=>[KNN {top_k} @vector $query_vector AS score]')
         .sort_by('score')
