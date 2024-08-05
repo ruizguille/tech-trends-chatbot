@@ -26,3 +26,11 @@ async def chat(messages, model=settings.MODEL, temperature=0.1, **kwargs):
     message = response.choices[0].message
     return message.content, message.tool_calls
 
+async def chat_stream(messages, model=settings.MODEL, temperature=0.1, **kwargs):
+    return await client.chat.completions.create(
+        model=model,
+        messages=messages,
+        temperature=temperature,
+        stream=True,
+        **kwargs
+    )
