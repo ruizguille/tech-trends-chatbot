@@ -6,7 +6,7 @@ from app.tools import QueryKnowledgeBaseTool
 from app.prompts import MAIN_SYSTEM_PROMPT, RAG_SYSTEM_PROMPT
 
 class LocalRAGAssistant:
-    def __init__(self, history_size=4, max_tool_calls=3):
+    def __init__(self, history_size=4, max_tool_calls=3, log_tool_calls=True, log_tool_results=False):
         self.console = Console()
         self.chat_history = []
         self.main_system_message = {'role': 'system', 'content': MAIN_SYSTEM_PROMPT}
@@ -14,6 +14,8 @@ class LocalRAGAssistant:
         self.response_queue = asyncio.Queue()
         self.history_size = history_size
         self.max_tool_calls = max_tool_calls
+        self.log_tool_calls = log_tool_calls
+        self.log_tool_results = log_tool_results
 
     async def process_response(self, response_stream):
         content = ''
@@ -46,9 +48,8 @@ class LocalRAGAssistant:
         self.console.print('How can I help you?\n', style='cyan')
         while True:
             chat_messages = self.chat_history[-self.history_size:]
-            print(chat_messages, '\n\n')
             user_input = input()
-            print()
+            self.console.print()
             user_message = {'role': 'user', 'content': user_input}
             chat_messages.append(user_message)
             response_stream = await chat_stream(
@@ -63,10 +64,12 @@ class LocalRAGAssistant:
                     {'role': 'assistant', 'content': content, 'tool_calls': tool_calls}
                 )
                 for tool_call in tool_calls[:self.max_tool_calls]:
-                    self.console.print(f'TOOL CALL:\n{tool_call}', style='red', end='\n\n')
+                    if self.log_tool_calls:
+                        self.console.print(f'TOOL CALL:\n{tool_call}', style='red', end='\n\n')
                     kb_tool = QueryKnowledgeBaseTool(**json.loads(tool_call['function']['arguments']))
                     kb_result = await kb_tool()
-                    # self.console.print(f'TOOL RESULT:\n{kb_result}', style='magenta', end='\n\n')
+                    if self.log_tool_results:
+                        self.console.print(f'TOOL RESULT:\n{kb_result}', style='magenta', end='\n\n')
                     chat_messages.append(
                         {'role': 'tool', 'tool_call_id': tool_call['id'], 'content': kb_result}
                     )
