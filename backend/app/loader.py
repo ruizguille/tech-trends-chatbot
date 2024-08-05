@@ -55,4 +55,6 @@ async def add_docs_to_knowledge_base(docs_dir=settings.DOCS_DIR):
         chunk['vector'] = np.array(vector, dtype=np.float32).tobytes()
     
     print('\nAdding chunks to vector DB')
-    add_to_vector_db(chunks)
+    await add_to_vector_db(chunks)
+
+    print('\nKnowledge base created')
