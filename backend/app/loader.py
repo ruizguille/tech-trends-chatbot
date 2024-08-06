@@ -1,5 +1,5 @@
 import os
-import uuid
+from uuid import uuid4
 from tqdm import tqdm
 import numpy as np
 from pdfminer.high_level import extract_text
@@ -26,7 +26,7 @@ async def add_docs_to_knowledge_base(docs_dir=settings.DOCS_DIR):
     text_splitter = TextSplitter(chunk_size=512, chunk_overlap=150)
     print('\nSplitting documents into chunks')
     for doc_name, doc_text in docs:
-        doc_id = str(uuid.uuid4())[:8]
+        doc_id = str(uuid4())[:8]
         doc_chunks = text_splitter.split(doc_text)
         for chunk_idx, chunk_text in enumerate(doc_chunks):
             chunk = {

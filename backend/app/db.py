@@ -1,15 +1,19 @@
+import json
 from redis.asyncio import Redis
-from redis.commands.search.field import TextField, VectorField
+from redis.commands.search.field import TextField, VectorField, NumericField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
+from redis.commands.json.path import Path
 from app.config import settings
 
 VECTORS_IDX_NAME = 'idx:vectors'
 VECTORS_IDX_PREFIX = 'vectors:'
+CHAT_IDX_NAME = 'idx:chat'
+CHAT_IDX_PREFIX = 'chat:'
 
 r = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
 
-async def create_vectors_index(idx_name=VECTORS_IDX_NAME, idx_prefix=VECTORS_IDX_PREFIX):
+async def create_vectors_index():
     schema = (
         TextField('text'),
         TextField('doc_name'),
@@ -22,29 +26,28 @@ async def create_vectors_index(idx_name=VECTORS_IDX_NAME, idx_prefix=VECTORS_IDX
         ),
     )
     try:
-        await r.ft(idx_name).create_index(
+        await r.ft(VECTORS_IDX_NAME).create_index(
             fields=schema,
-            definition=IndexDefinition(prefix=[idx_prefix], index_type=IndexType.HASH)
+            definition=IndexDefinition(prefix=[VECTORS_IDX_PREFIX], index_type=IndexType.HASH)
         )
-        print(f'Index {idx_name} created successfully')
+        print(f'Index {VECTORS_IDX_NAME} created successfully')
     except Exception as e:
-        print(f'Error creating index {idx_name}: {e}')
+        print(f'Error creating index {VECTORS_IDX_NAME}: {e}')
 
-async def add_to_vector_db(chunks, idx_prefix=VECTORS_IDX_PREFIX):
+async def add_to_vector_db(chunks):
     async with r.pipeline(transaction=True) as pipe:
         for chunk in chunks:
-            key = idx_prefix + chunk['chunk_id']
-            pipe.hset(key, mapping=chunk)
+            pipe.hset(VECTORS_IDX_PREFIX + chunk['chunk_id'], mapping=chunk)
         await pipe.execute()
 
-async def search_vector_db(query_vector, top_k=5, idx_name=VECTORS_IDX_NAME):
+async def search_vector_db(query_vector, top_k=5):
     query = (
         Query(f'(*)=>[KNN {top_k} @vector $query_vector AS score]')
         .sort_by('score')
         .return_fields('score', 'chunk_id', 'text', 'doc_name')
         .dialect(2)
     )
-    res = await r.ft(idx_name).search(query, {'query_vector': query_vector})
+    res = await r.ft(VECTORS_IDX_NAME).search(query, {'query_vector': query_vector})
     return [{
         'score': 1 - float(r.score),
         'chunk_id': r.chunk_id,
@@ -52,9 +55,40 @@ async def search_vector_db(query_vector, top_k=5, idx_name=VECTORS_IDX_NAME):
         'doc_name': r.doc_name
     } for r in res.docs]
 
-async def count_vectors(idx_name=VECTORS_IDX_NAME):
-    q = Query("*").paging(0, 0)
-    return (await r.ft(idx_name).search(q)).total
+async def count_vectors():
+    q = Query('*').paging(0, 0)
+    return (await r.ft(VECTORS_IDX_NAME).search(q)).total
 
-async def reset_db():
+async def delete_db():
     await r.flushdb()
+
+async def create_chat_index():
+    try:
+        schema = (
+            TextField('text', sortable=True),
+        )
+        await r.ft(CHAT_IDX_NAME).create_index(
+            fields=schema,
+            definition=IndexDefinition(prefix=[CHAT_IDX_PREFIX], index_type=IndexType.JSON)
+        )
+        print(f'Index {CHAT_IDX_NAME} created successfully')
+    except Exception as e:
+        print(f'Error creating index {CHAT_IDX_NAME}: {e}')
+
+async def create_chat(chat_id, created):
+    chat = {'id': chat_id, 'created': created, 'messages': []}
+    await r.json().set(CHAT_IDX_PREFIX + chat_id, Path.root_path(), chat)
+    return chat
+
+async def add_chat_messages(chat_id, messages):
+    await r.json().arrappend(CHAT_IDX_PREFIX + chat_id, '$.messages', *messages)
+
+async def get_chat_messages(chat_id, last_n=None):
+    if last_n is None:
+       return await r.json().get(CHAT_IDX_PREFIX + chat_id, '$.messages')
+    else:
+        return await r.json().get(CHAT_IDX_PREFIX + chat_id, f'$.messages[-{last_n}:]')
+
+async def get_all_chats():
+    res = await r.ft('idx:chat').search(Query('*'))
+    return [json.loads(doc.json) for doc in res.docs]
