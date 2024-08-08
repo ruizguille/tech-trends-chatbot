@@ -1,6 +1,7 @@
 import json
 import asyncio
 from rich.console import Console
+from openai import pydantic_function_tool
 from app.openai import chat_stream
 from app.tools import QueryKnowledgeBaseTool
 from app.prompts import MAIN_SYSTEM_PROMPT, RAG_SYSTEM_PROMPT
@@ -11,38 +12,23 @@ class LocalRAGAssistant:
         self.chat_history = []
         self.main_system_message = {'role': 'system', 'content': MAIN_SYSTEM_PROMPT}
         self.rag_system_message = {'role': 'system', 'content': RAG_SYSTEM_PROMPT}
-        self.response_queue = asyncio.Queue()
         self.history_size = history_size
         self.max_tool_calls = max_tool_calls
         self.log_tool_calls = log_tool_calls
         self.log_tool_results = log_tool_results
 
-    async def process_response(self, response_stream):
-        content = ''
-        tool_calls = []
-        async for chunk in response_stream:
-            delta = chunk.choices[0].delta
-            if delta.tool_calls:
-                delta_tc = delta.tool_calls[0]
-                if delta_tc.index == len(tool_calls):
-                    tool_calls.append({
-                        'id': delta_tc.id,
-                        'type': delta_tc.type,
-                        'function': {
-                            'name': delta_tc.function.name,
-                            'arguments': delta_tc.function.arguments
-                        }
-                    })
-                elif delta_tc.function.name:
-                    tool_calls[-1]['function']['name'] += delta_tc.function.name
-                elif delta_tc.function.arguments:
-                    tool_calls[-1]['function']['arguments'] += delta_tc.function.arguments
-            elif delta.content:
-                content += delta.content
-                self.console.print(delta.content, style='cyan', end = '')
-        if content:
-            self.console.print('\n')
-        return content, tool_calls
+    async def run_chat(self, system_message, chat_messages, **kwargs):
+         messages = [system_message, *chat_messages]
+         async with chat_stream(messages=messages, **kwargs) as stream:
+            async for event in stream:
+                if event.type == 'content.delta':
+                    self.console.print(event.delta, style='cyan', end = '')
+            
+            final_completion = await stream.get_final_completion()
+            assistant_message = final_completion.choices[0].message
+            if assistant_message.content:
+                self.console.print('\n')
+            return assistant_message
 
     async def run(self):
         self.console.print('How can I help you?\n', style='cyan')
@@ -52,36 +38,36 @@ class LocalRAGAssistant:
             self.console.print()
             user_message = {'role': 'user', 'content': user_input}
             chat_messages.append(user_message)
-            response_stream = await chat_stream(
-                messages=[self.main_system_message, *chat_messages],
-                tools=[QueryKnowledgeBaseTool.openai_tool_schema()],
+            assistant_message = await self.run_chat(
+                system_message=self.main_system_message,
+                chat_messages=chat_messages,
+                tools=[
+                    pydantic_function_tool(QueryKnowledgeBaseTool)
+                ],
                 tool_choice='auto'
             )
-            content, tool_calls = await self.process_response(response_stream)
 
-            if tool_calls:
-                chat_messages.append(
-                    {'role': 'assistant', 'content': content, 'tool_calls': tool_calls}
-                )
-                for tool_call in tool_calls[:self.max_tool_calls]:
+            if assistant_message.tool_calls:
+                chat_messages.append(assistant_message)
+                for tool_call in assistant_message.tool_calls[:self.max_tool_calls]:
                     if self.log_tool_calls:
-                        self.console.print(f'TOOL CALL:\n{tool_call}', style='red', end='\n\n')
-                    kb_tool = QueryKnowledgeBaseTool(**json.loads(tool_call['function']['arguments']))
+                        self.console.print(f'TOOL CALL:\n{tool_call.to_dict()}', style='red', end='\n\n')
+                    kb_tool = tool_call.function.parsed_arguments
                     kb_result = await kb_tool()
                     if self.log_tool_results:
                         self.console.print(f'TOOL RESULT:\n{kb_result}', style='magenta', end='\n\n')
                     chat_messages.append(
-                        {'role': 'tool', 'tool_call_id': tool_call['id'], 'content': kb_result}
+                        {'role': 'tool', 'tool_call_id': tool_call.id, 'content': kb_result}
                     )
                 
-                response_stream = await chat_stream(
-                    messages=[self.rag_system_message, *chat_messages]
+                assistant_message = await self.run_chat(
+                    system_message=self.rag_system_message,
+                    chat_messages=chat_messages,
                 )
-                content, _ = await self.process_response(response_stream)
             
             self.chat_history.extend([
                 user_message,
-                {'role': 'assistant', 'content': content}
+                {'role': 'assistant', 'content': assistant_message.content}
             ])
 
 

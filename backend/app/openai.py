@@ -16,21 +16,10 @@ async def get_embeddings(input, model=settings.EMBEDDING_MODEL, dimensions=setti
     res = await client.embeddings.create(input=input, model=model, dimensions=dimensions)
     return [d.embedding for d in res.data]
 
-async def chat(messages, model=settings.MODEL, temperature=0.1, **kwargs):
-    response = await client.chat.completions.create(
+def chat_stream(messages, model=settings.MODEL, temperature=0.1, **kwargs):
+    return client.beta.chat.completions.stream(
         model=model,
         messages=messages,
         temperature=temperature,
-        **kwargs
-    )
-    message = response.choices[0].message
-    return message.content, message.tool_calls
-
-async def chat_stream(messages, model=settings.MODEL, temperature=0.1, **kwargs):
-    return await client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=temperature,
-        stream=True,
         **kwargs
     )
