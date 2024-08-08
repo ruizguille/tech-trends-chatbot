@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
+    ALLOW_ORIGINS: str = '*'
     OPENAI_API_KEY: str
     MODEL: str = 'gpt-4o-mini'
     EMBEDDING_MODEL: str = 'text-embedding-3-large'

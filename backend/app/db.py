@@ -5,6 +5,7 @@ from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 from redis.commands.json.path import Path
 from app.config import settings
+from app.exceptions import NotFoundError
 
 VECTORS_IDX_NAME = 'idx:vectors'
 VECTORS_IDX_PREFIX = 'vectors:'
@@ -83,12 +84,21 @@ async def create_chat(chat_id, created):
 async def add_chat_messages(chat_id, messages):
     await r.json().arrappend(CHAT_IDX_PREFIX + chat_id, '$.messages', *messages)
 
+async def chat_exists(chat_id):
+    return await r.exists(CHAT_IDX_PREFIX + chat_id)
+
 async def get_chat_messages(chat_id, last_n=None):
+    if not await chat_exists(chat_id):
+        raise NotFoundError(f'Chat {chat_id} does not exist')
     if last_n is None:
-       return await r.json().get(CHAT_IDX_PREFIX + chat_id, '$.messages')
+        return await r.json().get(CHAT_IDX_PREFIX + chat_id, '$.messages[*]')
     else:
         return await r.json().get(CHAT_IDX_PREFIX + chat_id, f'$.messages[-{last_n}:]')
 
 async def get_all_chats():
     res = await r.ft('idx:chat').search(Query('*'))
     return [json.loads(doc.json) for doc in res.docs]
+
+async def delete_chats(*chat_ids):
+    keys = [CHAT_IDX_PREFIX + chat_id for chat_id in chat_ids]
+    return await r.delete(*keys)

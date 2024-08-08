@@ -1,4 +1,3 @@
-import json
 import asyncio
 from rich.console import Console
 from openai import pydantic_function_tool
