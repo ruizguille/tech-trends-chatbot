@@ -5,7 +5,7 @@ from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 from redis.commands.json.path import Path
 from app.config import settings
-from app.exceptions import NotFoundError
+from app.utils.exceptions import NotFoundError
 
 VECTORS_IDX_NAME = 'idx:vectors'
 VECTORS_IDX_PREFIX = 'vectors:'

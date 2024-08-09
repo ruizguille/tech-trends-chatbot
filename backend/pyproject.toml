@@ -27,4 +27,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-local-chat = "app.local_assistant:main"
+local-assistant = "app.assistants.local_assistant:main"

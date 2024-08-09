@@ -3,7 +3,7 @@ from uuid import uuid4
 from tqdm import tqdm
 import numpy as np
 from pdfminer.high_level import extract_text
-from app.splitter import TextSplitter
+from app.utils.splitter import TextSplitter
 from app.openai import get_embeddings, token_size
 from app.db import add_to_vector_db
 from app.config import settings

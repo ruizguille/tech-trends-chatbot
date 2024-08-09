@@ -2,8 +2,8 @@ import asyncio
 from rich.console import Console
 from openai import pydantic_function_tool
 from app.openai import chat_stream
-from app.tools import QueryKnowledgeBaseTool
-from app.prompts import MAIN_SYSTEM_PROMPT, RAG_SYSTEM_PROMPT
+from app.assistants.tools import QueryKnowledgeBaseTool
+from app.assistants.prompts import MAIN_SYSTEM_PROMPT, RAG_SYSTEM_PROMPT
 
 class LocalRAGAssistant:
     def __init__(self, history_size=4, max_tool_calls=3, log_tool_calls=True, log_tool_results=False):

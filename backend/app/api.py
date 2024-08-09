@@ -3,8 +3,8 @@ from time import time
 from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel
 from app.db import create_chat
-from app.assistant import RAGAssistant
-from app.exceptions import NotFoundError
+from app.assistants.assistant import RAGAssistant
+from app.utils.exceptions import NotFoundError
 
 class ChatIn(BaseModel):
     message: str
