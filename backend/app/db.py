@@ -5,7 +5,6 @@ from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 from redis.commands.json.path import Path
 from app.config import settings
-from app.utils.exceptions import NotFoundError
 
 VECTORS_IDX_NAME = 'idx:vectors'
 VECTORS_IDX_PREFIX = 'vectors:'
@@ -88,12 +87,14 @@ async def chat_exists(chat_id):
     return await r.exists(CHAT_IDX_PREFIX + chat_id)
 
 async def get_chat_messages(chat_id, last_n=None):
-    if not await chat_exists(chat_id):
-        raise NotFoundError(f'Chat {chat_id} does not exist')
     if last_n is None:
-        return await r.json().get(CHAT_IDX_PREFIX + chat_id, '$.messages[*]')
+        messages = await r.json().get(CHAT_IDX_PREFIX + chat_id, '$.messages[*]')
     else:
-        return await r.json().get(CHAT_IDX_PREFIX + chat_id, f'$.messages[-{last_n}:]')
+        messages = await r.json().get(CHAT_IDX_PREFIX + chat_id, f'$.messages[-{last_n}:]')
+    return [{'role': m['role'], 'content': m['content']} for m in messages]
+
+async def get_chat(chat_id):
+    return await r.json().get(chat_id)
 
 async def get_all_chats():
     res = await r.ft('idx:chat').search(Query('*'))

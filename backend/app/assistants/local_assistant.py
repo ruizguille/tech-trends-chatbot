@@ -58,7 +58,6 @@ class LocalRAGAssistant:
                     chat_messages.append(
                         {'role': 'tool', 'tool_call_id': tool_call.id, 'content': kb_result}
                     )
-                
                 assistant_message = await self.run_chat(
                     system_message=self.rag_system_message,
                     chat_messages=chat_messages,

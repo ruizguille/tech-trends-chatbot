@@ -1,10 +1,10 @@
 from uuid import uuid4
 from time import time
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.db import create_chat
+from sse_starlette.sse import EventSourceResponse
+from app.db import create_chat, chat_exists
 from app.assistants.assistant import RAGAssistant
-from app.utils.exceptions import NotFoundError
 
 class ChatIn(BaseModel):
     message: str
@@ -20,8 +20,8 @@ async def create_new_chat():
 
 @router.post('/chats/{chat_id}')
 async def chat(chat_id: str, chat_in: ChatIn):
+    if not await chat_exists(chat_id):
+        raise HTTPException(status_code=404, detail=f'Chat {chat_id} does not exist')
     assistant = RAGAssistant(chat_id=chat_id)
-    try:
-        return await assistant.run(message=chat_in.message) 
-    except NotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    sse_stream = assistant.run(message=chat_in.message)
+    return EventSourceResponse(sse_stream)
