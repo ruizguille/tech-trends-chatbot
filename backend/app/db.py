@@ -91,7 +91,7 @@ async def get_chat_messages(chat_id, last_n=None):
         messages = await r.json().get(CHAT_IDX_PREFIX + chat_id, '$.messages[*]')
     else:
         messages = await r.json().get(CHAT_IDX_PREFIX + chat_id, f'$.messages[-{last_n}:]')
-    return [{'role': m['role'], 'content': m['content']} for m in messages]
+    return [{'role': m['role'], 'content': m['content']} for m in messages] if messages else []
 
 async def get_chat(chat_id):
     return await r.json().get(chat_id)
