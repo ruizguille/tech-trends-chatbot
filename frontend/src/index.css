@@ -3,3 +3,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body, html, #root {
+    @apply text-main-text h-full;
+  }
+
+  ::-webkit-scrollbar {
+    @apply h-4 w-2;
+  }
+
+  ::-webkit-scrollbar:horizontal {
+    @apply h-4 w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent rounded;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-blue/50 border border-white rounded;
+  }
+}
+
+@layer components {
+  .spinner-child {
+    @apply absolute -top-1 left-0 h-full w-full content-[''] rounded-full bg-primary-orange opacity-0;
+  }
+}

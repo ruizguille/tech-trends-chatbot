@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect,  useRef } from 'react';
 
 function useAutoScroll(active) {
-  const scrollRef = useRef(null);
   const scrollContentRef = useRef(null);
   const isDisabled = useRef(false);
   const prevScrollTop = useRef(null);
@@ -10,45 +9,47 @@ function useAutoScroll(active) {
     const resizeObserver = new ResizeObserver(() => {
       if (
         !isDisabled.current &&
-        scrollRef.current.scrollHeight - scrollRef.current.clientHeight > scrollRef.current.scrollTop
+        document.documentElement.scrollHeight - window.innerHeight > window.scrollY
       ) {
-        scrollRef.current.scrollTo({
-          top: scrollRef.current.scrollHeight,
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
           behavior: 'smooth'
         });
       }
     });
-    resizeObserver.observe(scrollContentRef.current);
+
+    if (scrollContentRef.current) {
+      resizeObserver.observe(scrollContentRef.current);
+    }
     
     return () => resizeObserver.disconnect();
   }, []);
 
   useEffect(() => {
     function onScroll() {
-      if (!isDisabled.current && scrollRef.current.scrollTop < prevScrollTop.current) {
+      if (!isDisabled.current && window.scrollY < prevScrollTop.current) {
         isDisabled.current = true;
       } else if (
         isDisabled.current &&
-        scrollRef.current.scrollHeight - scrollRef.current.clientHeight === scrollRef.current.scrollTop
+        document.documentElement.scrollHeight - window.innerHeight === window.scrollY
       ) {
         isDisabled.current = false;
       }
-      prevScrollTop.current = scrollRef.current.scrollTop;
+      prevScrollTop.current = window.scrollY;
     }
     
-    scrollRef.current.addEventListener('scroll', onScroll);
-    const scrollRefValue = scrollRef.current;
+    window.addEventListener('scroll', onScroll);
 
-    return () => scrollRefValue.removeEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useLayoutEffect(() => {
     isDisabled.current = false;
-    prevScrollTop.current = scrollRef.current.scrollTop;
+    prevScrollTop.current = window.scrollY;
   }, [active]);
 
 
-  return { scrollRef, scrollContentRef };
+  return scrollContentRef;
 }
 
 export default useAutoScroll;

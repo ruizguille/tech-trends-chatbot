@@ -7,7 +7,7 @@ import ChatInput from '@/components/ChatInput';
 
 function Chatbot() {
   const [chatId, setChatId] = useState(null);
-  const [messages, setMessages] = useImmer([{ role: 'assistant', content: 'How can I help you?' }]);
+  const [messages, setMessages] = useImmer([]);
   const [newMessage, setNewMessage] = useState('');
 
   const isLoading = messages.length && messages[messages.length - 1].loading;
@@ -50,8 +50,8 @@ function Chatbot() {
   }
 
   return (
-    <>
-      <div className='flex flex-col'>
+    <div className='h-full'>
+      <div className='relative h-full max-w-3xl mx-auto flex flex-col gap-6 pt-6 px-6'>
         <ChatMessages
           messages={messages}
           isLoading={isLoading}
@@ -63,7 +63,7 @@ function Chatbot() {
           submitNewMessage={submitNewMessage}
         />
       </div>
-    </>
+    </div>
   );
 }
 
