@@ -28,4 +28,5 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-local-assistant = "app.assistants.local_assistant:main"
+load = "app.loader:main"
+local = "app.assistants.local_assistant:main"

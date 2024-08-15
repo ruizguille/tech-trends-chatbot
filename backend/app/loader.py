@@ -1,20 +1,21 @@
 import os
+import asyncio
 from uuid import uuid4
 from tqdm import tqdm
 import numpy as np
 from pdfminer.high_level import extract_text
 from app.utils.splitter import TextSplitter
 from app.openai import get_embeddings, token_size
-from app.db import add_to_vector_db
+from app.db import get_redis, setup_db, add_chunks_to_vector_db
 from app.config import settings
 
 def batchify(iterable, batch_size):
     for i in range(0, len(iterable), batch_size):
         yield iterable[i:i+batch_size]
 
-async def add_docs_to_knowledge_base(docs_dir=settings.DOCS_DIR):
+async def process_docs(docs_dir=settings.DOCS_DIR):
     docs = []
-    print('Loading documents')
+    print('\nLoading documents')
     pdf_files = [f for f in os.listdir(docs_dir) if f.endswith('.pdf')]
     for filename in tqdm(pdf_files):
         file_path = os.path.join(docs_dir, filename)
@@ -53,8 +54,20 @@ async def add_docs_to_knowledge_base(docs_dir=settings.DOCS_DIR):
 
     for chunk, vector in zip(chunks, vectors):
         chunk['vector'] = np.array(vector, dtype=np.float32).tobytes()
-    
-    print('\nAdding chunks to vector DB')
-    await add_to_vector_db(chunks)
+    return chunks
 
-    print('\nKnowledge base created')
+async def load_knowledge_base():
+    async with get_redis() as rdb:
+        print('Setting up Redis database')
+        await setup_db(rdb)
+        chunks = await process_docs()
+        print('\nAdding chunks to vector db')
+        await add_chunks_to_vector_db(rdb, chunks)
+        print('\nKnowledge base loaded')
+
+def main():
+    asyncio.run(load_knowledge_base())
+
+
+if __name__ == '__main__':
+    main()
