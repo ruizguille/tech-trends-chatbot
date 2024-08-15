@@ -8,8 +8,9 @@ from app.assistants.prompts import MAIN_SYSTEM_PROMPT, RAG_SYSTEM_PROMPT
 from app.utils.sse_stream import SSEStream
 
 class RAGAssistant:
-    def __init__(self, chat_id, history_size=4, max_tool_calls=3):
+    def __init__(self, chat_id, rdb, history_size=4, max_tool_calls=3):
         self.chat_id = chat_id
+        self.rdb = rdb
         self.sse_stream = None
         self.main_system_message = {'role': 'system', 'content': MAIN_SYSTEM_PROMPT}
         self.rag_system_message = {'role': 'system', 'content': RAG_SYSTEM_PROMPT}
@@ -32,7 +33,7 @@ class RAGAssistant:
         for tool_call in tool_calls[:self.max_tool_calls]:
             # There is only one tool in our RAGAssistant, the QueryKnowledgeBaseTool
             kb_tool = tool_call.function.parsed_arguments
-            kb_result = await kb_tool()
+            kb_result = await kb_tool(self.rdb)
             chat_messages.append(
                 {'role': 'tool', 'tool_call_id': tool_call.id, 'content': kb_result}
             )
@@ -43,7 +44,7 @@ class RAGAssistant:
     
     async def _run_conversation_step(self, message):
         user_db_message = {'role': 'user', 'content': message, 'created': int(time())}
-        chat_messages = await get_chat_messages(self.chat_id)
+        chat_messages = await get_chat_messages(self.rdb, self.chat_id)
         chat_messages.append({'role': 'user', 'content': message})
         assistant_message = await self._generate_chat_response(
             system_message=self.main_system_message,
@@ -64,7 +65,7 @@ class RAGAssistant:
             ],
             'created': int(time())
         }
-        await add_chat_messages(self.chat_id, [user_db_message, assistant_db_message])
+        await add_chat_messages(self.rdb, self.chat_id, [user_db_message, assistant_db_message])
 
     async def _handle_conversation_task(self, message):
         try:
