@@ -2,7 +2,6 @@ import os
 import asyncio
 from uuid import uuid4
 from tqdm import tqdm
-import numpy as np
 from pdfminer.high_level import extract_text
 from app.utils.splitter import TextSplitter
 from app.openai import get_embeddings, token_size

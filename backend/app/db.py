@@ -46,7 +46,7 @@ async def add_chunks_to_vector_db(rdb, chunks):
             pipe.json().set(VECTOR_IDX_PREFIX + chunk['chunk_id'], Path.root_path(), chunk)
         await pipe.execute()
 
-async def search_vector_db(rdb, query_vector, top_k=5):
+async def search_vector_db(rdb, query_vector, top_k=10):
     query = (
         Query(f'(*)=>[KNN {top_k} @vector $query_vector AS score]')
         .sort_by('score')
