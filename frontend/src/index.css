@@ -30,4 +30,32 @@
   .spinner-child {
     @apply absolute -top-1 left-0 h-full w-full content-[''] rounded-full bg-primary-orange opacity-0;
   }
+
+  .markdown-container p {
+    @apply mb-5;
+  }
+
+  .markdown-container h1, h2, h3, h4, h5, h6 {
+    @apply font-bold mb-5;
+  }
+
+  .markdown-container li {
+    @apply mb-3;
+  }
+
+  .markdown-container li:last-child {
+    @apply mb-0;
+  }
+
+  .markdown-container ol {
+    @apply list-decimal mx-0 mt-0 mb-5 pl-8;
+  }
+
+  .markdown-container ul {
+    @apply list-disc mx-0 mt-0 mb-5 pl-8;
+  }
+
+  .markdown-container > :last-child {
+    @apply mb-0;
+  }
 }
