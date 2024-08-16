@@ -30,3 +30,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 load = "app.loader:main"
 local = "app.assistants.local_assistant:main"
+export = "app.export:main"

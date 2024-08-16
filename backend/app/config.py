@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = 'localhost'
     REDIS_PORT: int = 6379
     DOCS_DIR: str = 'data/docs'
+    EXPORT_DIR: str = 'data'
 
     model_config = SettingsConfigDict(env_file='.env')
 

@@ -102,12 +102,9 @@ async def get_chat(rdb, chat_id):
     return await rdb.json().get(chat_id)
 
 async def get_all_chats(rdb):
-    res = await rdb.ft(CHAT_IDX_NAME).search(Query('*'))
+    q = Query('*').sort_by('created', asc=False)
+    res = await rdb.ft(CHAT_IDX_NAME).search(q)
     return [json.loads(doc.json) for doc in res.docs]
-
-async def delete_chats(rdb, *chat_ids):
-    keys = [CHAT_IDX_PREFIX + chat_id for chat_id in chat_ids]
-    return await rdb.delete(*keys)
 
 
 # GENERAL
