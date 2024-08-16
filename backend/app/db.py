@@ -17,20 +17,24 @@ def get_redis():
 # VECTORS
 async def create_vector_index(rdb):
     schema = (
-        TextField('text'),
-        TextField('doc_name'),
-        VectorField('vector',
-            'FLAT', {
+        TextField('$.chunk_id', no_stem=True, as_name='chunk_id'),
+        TextField('$.text', as_name='text'),
+        TextField('$.doc_name', as_name='doc_name'),
+        VectorField(
+            '$.vector',
+            'FLAT',
+            {
                 'TYPE': 'FLOAT32',
                 'DIM': settings.EMBEDDING_DIMENSIONS,
-                'DISTANCE_METRIC': 'COSINE',
-            }
-        ),
+                'DISTANCE_METRIC': 'COSINE'
+            },
+            as_name='vector'
+        )
     )
     try:
         await rdb.ft(VECTOR_IDX_NAME).create_index(
             fields=schema,
-            definition=IndexDefinition(prefix=[VECTOR_IDX_PREFIX], index_type=IndexType.HASH)
+            definition=IndexDefinition(prefix=[VECTOR_IDX_PREFIX], index_type=IndexType.JSON)
         )
         print(f"Vector index '{VECTOR_IDX_NAME}' created successfully")
     except Exception as e:
@@ -39,7 +43,7 @@ async def create_vector_index(rdb):
 async def add_chunks_to_vector_db(rdb, chunks):
     async with rdb.pipeline(transaction=True) as pipe:
         for chunk in chunks:
-            pipe.hset(VECTOR_IDX_PREFIX + chunk['chunk_id'], mapping=chunk)
+            pipe.json().set(VECTOR_IDX_PREFIX + chunk['chunk_id'], Path.root_path(), chunk)
         await pipe.execute()
 
 async def search_vector_db(rdb, query_vector, top_k=5):
@@ -59,7 +63,7 @@ async def search_vector_db(rdb, query_vector, top_k=5):
 
 async def get_all_vectors(rdb):
     res = await rdb.ft(VECTOR_IDX_NAME).search(Query('*'))
-    return res.docs
+    return [json.loads(doc.json) for doc in res.docs]
 
 
 # CHATS
@@ -98,7 +102,7 @@ async def get_chat(rdb, chat_id):
     return await rdb.json().get(chat_id)
 
 async def get_all_chats(rdb):
-    res = await rdb.ft('idx:chat').search(Query('*'))
+    res = await rdb.ft(CHAT_IDX_NAME).search(Query('*'))
     return [json.loads(doc.json) for doc in res.docs]
 
 async def delete_chats(rdb, *chat_ids):

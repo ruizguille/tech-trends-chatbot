@@ -11,4 +11,4 @@ class QueryKnowledgeBaseTool(BaseModel):
         query_vector = await get_embedding(self.query_input)
         query_vector = np.array(query_vector, dtype=np.float32).tobytes()
         chunks = await search_vector_db(rdb, query_vector)
-        return f"\n\n{'-'*10}\n\n".join(chunk['text'] for chunk in chunks) + f"\n\n{'-'*10}"
+        return f"\n\n-----\n\n".join(chunk['text'] for chunk in chunks) + f"\n\n-----"

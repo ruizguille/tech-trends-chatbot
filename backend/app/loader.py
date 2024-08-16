@@ -20,7 +20,8 @@ async def process_docs(docs_dir=settings.DOCS_DIR):
     for filename in tqdm(pdf_files):
         file_path = os.path.join(docs_dir, filename)
         text = extract_text(file_path)
-        docs.append((filename, text))
+        doc_name = os.path.splitext(filename)[0]
+        docs.append((doc_name, text))
     print(f'Loaded {len(docs)} PDF documents')
 
     chunks = []
@@ -53,7 +54,7 @@ async def process_docs(docs_dir=settings.DOCS_DIR):
             pbar.update(len(batch))
 
     for chunk, vector in zip(chunks, vectors):
-        chunk['vector'] = np.array(vector, dtype=np.float32).tobytes()
+        chunk['vector'] = vector
     return chunks
 
 async def load_knowledge_base():
