@@ -13,7 +13,8 @@ export default {
       },
     },
     fontFamily: {
-      'sans': ['Open Sans, sans-serif'],
+      'sans': ['Open Sans', 'sans-serif'],
+      'urbanist': ['Urbanist', 'sans-serif'],
     },
     extend: {
       colors: {

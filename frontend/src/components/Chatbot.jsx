@@ -50,19 +50,23 @@ function Chatbot() {
   }
 
   return (
-    <div className='h-full'>
-      <div className='relative h-full max-w-3xl mx-auto flex flex-col gap-6 pt-6 px-6'>
-        <ChatMessages
-          messages={messages}
-          isLoading={isLoading}
-        />
-        <ChatInput
-          newMessage={newMessage}
-          isLoading={isLoading}
-          setNewMessage={setNewMessage}
-          submitNewMessage={submitNewMessage}
-        />
-      </div>
+    <div className='relative grow flex flex-col gap-6 pt-6'>
+      {messages.length === 0 && (
+        <div className='mt-3 font-urbanist text-primary-blue text-xl font-light'>
+          <p>👋 Welcome to the Tech Trends Assistant!</p>
+          <p>Ask me anything about the latest technology trends.</p>
+        </div>
+      )}
+      <ChatMessages
+        messages={messages}
+        isLoading={isLoading}
+      />
+      <ChatInput
+        newMessage={newMessage}
+        isLoading={isLoading}
+        setNewMessage={setNewMessage}
+        submitNewMessage={submitNewMessage}
+      />
     </div>
   );
 }
