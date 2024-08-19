@@ -23,13 +23,13 @@ function Chatbot() {
     setNewMessage('');
 
     let chatIdOrNew = chatId;
-    if (!chatId) {
-      const { id } = await api.createChat();
-      setChatId(id);
-      chatIdOrNew = id;
-    }
-
     try {
+      if (!chatId) {
+        const { id } = await api.createChat();
+        setChatId(id);
+        chatIdOrNew = id;
+      }
+
       const stream = await api.sendChatMessage(chatIdOrNew, trimmedMessage);
       const sseIterator = parseSSEStream(stream);
       for await (const textChunk of sseIterator) {
