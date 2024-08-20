@@ -4,7 +4,7 @@ import nltk
 from functools import partial
 from app.openai import token_size
 
-sentence_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+sentence_tokenizer = nltk.tokenize.PunktSentenceTokenizer()
 
 def split_by_separator(text, sep):
     splits = text.split(sep)

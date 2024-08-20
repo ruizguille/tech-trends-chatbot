@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - ALLOW_ORIGINS
+      - OPENAI_API_KEY
+      - MODEL
+      - EMBEDDING_MODEL
+      - EMBEDDING_DIMENSIONS
+      - REDIS_HOST
+      - REDIS_PORT
+      - DOCS_DIR
+      - EXPORT_DIR
+
+  redis:
+    image: redis/redis-stack-server:latest
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
