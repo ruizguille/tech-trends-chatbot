@@ -6,4 +6,5 @@ venv/
 .env.*
 !.env.example
 data/*
+!data/docs/
 !data/invoices/

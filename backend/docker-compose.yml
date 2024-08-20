@@ -13,8 +13,8 @@ services:
       - MODEL
       - EMBEDDING_MODEL
       - EMBEDDING_DIMENSIONS
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_HOST
+      - REDIS_PORT
       - DOCS_DIR
       - EXPORT_DIR
 
