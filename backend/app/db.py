@@ -62,7 +62,8 @@ async def search_vector_db(rdb, query_vector, top_k=10):
     } for d in res.docs]
 
 async def get_all_vectors(rdb):
-    res = await rdb.ft(VECTOR_IDX_NAME).search(Query('*'))
+    count = await rdb.ft(VECTOR_IDX_NAME).search(Query('*').paging(0, 0))
+    res = await rdb.ft(VECTOR_IDX_NAME).search(Query('*').paging(0, count.total))
     return [json.loads(doc.json) for doc in res.docs]
 
 
@@ -103,7 +104,8 @@ async def get_chat(rdb, chat_id):
 
 async def get_all_chats(rdb):
     q = Query('*').sort_by('created', asc=False)
-    res = await rdb.ft(CHAT_IDX_NAME).search(q)
+    count = await rdb.ft(CHAT_IDX_NAME).search(q.paging(0, 0))
+    res = await rdb.ft(CHAT_IDX_NAME).search(q.paging(0, count.total))
     return [json.loads(doc.json) for doc in res.docs]
 
 
