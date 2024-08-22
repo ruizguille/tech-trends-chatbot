@@ -20,6 +20,8 @@ services:
     image: redis/redis-stack-server:latest
     volumes:
       - redis_data:/data
+    environment:
+      - REDIS_ARGS=--save 600 1 --save 300 10 --save 60 100
 
 volumes:
   redis_data:
