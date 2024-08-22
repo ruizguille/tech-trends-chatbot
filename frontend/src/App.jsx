@@ -10,7 +10,7 @@ function App() {
           <a href='https://codeawake.com'>
             <img src={logo} className='w-32' alt='logo' />
           </a>
-          <h1 className='font-urbanist text-[1.65rem] font-semibold'>Tech Trends AI Assistant</h1>
+          <h1 className='font-urbanist text-[1.65rem] font-semibold'>Tech Trends AI Chatbot</h1>
         </div>
       </header>
       <Chatbot />
