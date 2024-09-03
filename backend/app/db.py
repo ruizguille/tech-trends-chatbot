@@ -1,4 +1,5 @@
 import json
+import numpy as np
 from redis.asyncio import Redis
 from redis.commands.search.field import TextField, VectorField, NumericField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
@@ -53,7 +54,9 @@ async def search_vector_db(rdb, query_vector, top_k=10):
         .return_fields('score', 'chunk_id', 'text', 'doc_name')
         .dialect(2)
     )
-    res = await rdb.ft(VECTOR_IDX_NAME).search(query, {'query_vector': query_vector})
+    res = await rdb.ft(VECTOR_IDX_NAME).search(query, {
+        'query_vector': np.array(query_vector, dtype=np.float32).tobytes()
+    })
     return [{
         'score': 1 - float(d.score),
         'chunk_id': d.chunk_id,

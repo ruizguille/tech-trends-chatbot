@@ -44,7 +44,7 @@ class RAGAssistant:
     
     async def _run_conversation_step(self, message):
         user_db_message = {'role': 'user', 'content': message, 'created': int(time())}
-        chat_messages = await get_chat_messages(self.rdb, self.chat_id)
+        chat_messages = await get_chat_messages(self.rdb, self.chat_id, last_n=self.history_size)
         chat_messages.append({'role': 'user', 'content': message})
         assistant_message = await self._generate_chat_response(
             system_message=self.main_system_message,
