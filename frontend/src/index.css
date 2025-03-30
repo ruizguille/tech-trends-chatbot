@@ -7,7 +7,7 @@
 
 @layer base {
   body, html, #root {
-    @apply text-main-text h-full;
+    @apply text-gray-100 h-full bg-gray-900;
   }
 
   ::-webkit-scrollbar {
@@ -19,17 +19,17 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-transparent rounded;
+    @apply bg-gray-800 rounded;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary-blue/50 border border-white rounded;
+    @apply bg-blue-500/50 border border-gray-800 rounded;
   }
 }
 
 @layer components {
   .spinner-child {
-    @apply absolute -top-1 left-0 h-full w-full content-[''] rounded-full bg-primary-orange opacity-0;
+    @apply absolute -top-1 left-0 h-full w-full content-[''] rounded-full opacity-0;
   }
 
   .markdown-container p {
@@ -59,4 +59,67 @@
   .markdown-container > :last-child {
     @apply mb-0;
   }
+
+  .markdown-container code {
+    @apply bg-gray-700 px-1 py-0.5 rounded text-sm;
+  }
+
+  .markdown-container pre {
+    @apply bg-gray-700 p-3 rounded-lg overflow-x-auto mb-5;
+  }
+
+  .markdown-container pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .markdown-container a {
+    @apply text-blue-400 hover:underline;
+  }
+
+  .cursor-blink {
+    @apply animate-blink text-blue-400;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes spinner {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes spinner-delayed {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-spinner {
+  animation: spinner 1.5s ease-in-out infinite;
+}
+
+.animate-spinner-delayed {
+  animation: spinner-delayed 1.5s ease-in-out infinite;
+}
+
+.animate-blink {
+  animation: blink 1s ease-in-out infinite;
 }

@@ -1,39 +1,25 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    './index.html',
-    './src/**/*.{js,jsx}',
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
-    fontFamily: {
-      'sans': ['Open Sans', 'sans-serif'],
-      'urbanist': ['Urbanist', 'sans-serif'],
-    },
     extend: {
+      fontFamily: {
+        urbanist: ['Urbanist', 'sans-serif'],
+        opensans: ['Open Sans', 'sans-serif'],
+      },
       colors: {
         'primary-blue': 'rgb(146, 179, 202)',
-        'primary-orange': 'rgb(243, 195, 177)',
-        'main-text': 'rgb(0, 43, 49)',
+        'primary-orange': 'rgb(255, 149, 0)',
+        'main-text': '#1A1A1A',
         'error-red': 'rgb(208, 69, 82)',
       },
       animation: {
-        'spinner': 'spinner 1.5s linear infinite',
-        'spinner-delayed': 'spinner 1.5s linear infinite 0.75s',
-      },
-      keyframes: {
-        spinner: {
-          '0%': { transform: 'scale(0)', opacity: 1 },
-          '100%': { transform: 'scale(1)', opacity: 0 },
-        },
+        chat: 'pulse 0.4s cubic-bezier(0.4, 0, 0.6, 1)',
       },
     },
   },
   plugins: [],
-};
+}
