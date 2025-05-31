@@ -18,6 +18,9 @@
     <meta name="twitter:title" content="Tech Trends AI Chatbot | CodeAwake" />
     <meta name="twitter:description" content="Tech Trends AI Chatbot powered by the latest technology reports from leading institutions like the World Bank, the World Economic Forum, McKinsey, Deloitte and the OECD." />
     <!-- <meta name="twitter:image" content="" /> -->
+    <% if(NODE_ENV === "production"){ %>
+      <script defer src="https://cloud.umami.is/script.js" data-website-id="%VITE_UMAMI_WEBSITE_ID%"></script>
+    <% } %>
   </head>
   <body>
     <div id="root"></div>
