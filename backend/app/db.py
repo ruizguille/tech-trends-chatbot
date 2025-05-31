@@ -2,7 +2,7 @@ import json
 import numpy as np
 from redis.asyncio import Redis
 from redis.commands.search.field import TextField, VectorField, NumericField
-from redis.commands.search.indexDefinition import IndexDefinition, IndexType
+from redis.commands.search.index_definition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 from redis.commands.json.path import Path
 from app.config import settings

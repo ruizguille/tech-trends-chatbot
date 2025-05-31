@@ -3,7 +3,7 @@ from openai import AsyncOpenAI
 from app.config import settings
 
 client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-tokenizer = tiktoken.encoding_for_model(settings.MODEL)
+tokenizer = tiktoken.get_encoding(settings.TOKENIZER_ENCODING)
 
 def token_size(text):
     return len(tokenizer.encode(text))

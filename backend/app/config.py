@@ -4,6 +4,7 @@ class Settings(BaseSettings):
     ALLOW_ORIGINS: str = '*'
     OPENAI_API_KEY: str
     MODEL: str = 'gpt-4.1-mini'
+    TOKENIZER_ENCODING: str = 'o200k_base'
     EMBEDDING_MODEL: str = 'text-embedding-3-large'
     EMBEDDING_DIMENSIONS: int = 1024
     REDIS_HOST: str = 'localhost'
