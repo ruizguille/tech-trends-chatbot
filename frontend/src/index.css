@@ -1,9 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@100..900&display=swap')
+layer(base);
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap')
+layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --font-*: initial;
+  --font-sans: Open Sans, sans-serif;
+  --font-urbanist: Urbanist, sans-serif;
+
+  --color-primary-blue: rgb(146, 179, 202);
+  --color-primary-orange: rgb(243, 195, 177);
+  --color-main-text: rgb(0, 43, 49);
+  --color-error-red: rgb(208, 69, 82);
+
+  --animate-spinner: spinner 1.5s linear infinite;
+  --animate-spinner-delayed: spinner 1.5s linear infinite 0.75s;
+
+  @keyframes spinner {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility spinner-child {
+  @apply absolute -top-1 left-0 h-full w-full content-[''] rounded-full bg-primary-orange opacity-0;
+}
+
+@utility markdown-container {
+  & p {
+    @apply mb-5;
+  }
+
+  & h1 {
+    @apply font-bold mb-5;
+  }
+
+  & li {
+    @apply mb-3;
+  }
+
+  & li:last-child {
+    @apply mb-0;
+  }
+
+  & ol {
+    @apply list-decimal mx-0 mt-0 mb-5 pl-8;
+  }
+
+  & ul {
+    @apply list-disc mx-0 mt-0 mb-5 pl-8;
+  }
+
+  & > :last-child {
+    @apply mb-0;
+  }
+}
 
 @layer base {
   body, html, #root {
@@ -19,44 +107,10 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-transparent rounded;
+    @apply bg-transparent rounded-sm;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary-blue/50 border border-white rounded;
-  }
-}
-
-@layer components {
-  .spinner-child {
-    @apply absolute -top-1 left-0 h-full w-full content-[''] rounded-full bg-primary-orange opacity-0;
-  }
-
-  .markdown-container p {
-    @apply mb-5;
-  }
-
-  .markdown-container h1, h2, h3, h4, h5, h6 {
-    @apply font-bold mb-5;
-  }
-
-  .markdown-container li {
-    @apply mb-3;
-  }
-
-  .markdown-container li:last-child {
-    @apply mb-0;
-  }
-
-  .markdown-container ol {
-    @apply list-decimal mx-0 mt-0 mb-5 pl-8;
-  }
-
-  .markdown-container ul {
-    @apply list-disc mx-0 mt-0 mb-5 pl-8;
-  }
-
-  .markdown-container > :last-child {
-    @apply mb-0;
+    @apply bg-primary-blue/50 border border-white rounded-sm;
   }
 }
